@@ -1,3 +1,6 @@
 [submodule "fea"]
 	path = fea
 	url = /home/tbhartman/src/site-packages/fea/.git
+[submodule "console"]
+	path = console
+	url = /home/tbhartman/src/site-packages/console/.git
