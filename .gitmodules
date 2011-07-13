@@ -1,0 +1,3 @@
+[submodule "fea"]
+	path = fea
+	url = /home/tbhartman/src/site-packages/fea/.git
