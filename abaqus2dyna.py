@@ -6,9 +6,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -53,7 +53,7 @@ class Orientation():
     c = None
     rot_axis = None
     rot = None
-    
+
     def __init__(self):
         self.a = np.empty(3)
         self.a.fill(np.nan)
@@ -61,12 +61,12 @@ class Orientation():
         self.b.fill(np.nan)
         self.c = np.empty(3)
         self.c.fill(0)
-        
+
 
 class Element():
     id = 0
     type = None
-    
+
     def __init__(self):
         self.node = []
 
@@ -93,7 +93,7 @@ class AbaqusPart(Part):
     orientation = None
     set = None
     section = None
-    
+
     def __init__(self, name):
         self.name = name
         self.element = {}
@@ -129,7 +129,7 @@ class AbaqusInstance():
     part = None
     translation = None
     rotation = None
-    
+
     @property
     def rotation_matrix(self):
         th = self.rotation['deg']
@@ -137,7 +137,7 @@ class AbaqusInstance():
         b = self.rotation['b']
         rm = GetRotationMatrix(a,b,th)
         return rm
-    
+
     def __init__(self):
         self.translation = np.zeros(3)
         self.rotation = {}
@@ -165,11 +165,11 @@ def ParseAbaqus(file):
     regex['comment'] = re.compile(r'^\*\*')
     regex['keyword'] = re.compile(r'^\*[a-zA-Z0-9 ]+[,\n]')
     regex['data'] = re.compile(r'^(?!\*)')
-    
+
     line_counter = Counter()
     line_counter['total'] = len(file.readlines())
     file.seek(0)
-    
+
     def ends_at(kw,loc):
         if loc == '*':
             if section[len(section)-1] != kw:
@@ -180,7 +180,7 @@ def ParseAbaqus(file):
         if type(loc) is str:
             if loc in section:
                 section.pop(section.index(kw))
-    
+
     def update_term(complete=False):
         total = line_counter['total']
         count = line_counter['current']
@@ -203,7 +203,7 @@ def ParseAbaqus(file):
                 to_write = '\r' + to_write
                 sys.stdout.write(to_write)
                 sys.stdout.flush()
-    
+
     for line in file:
         line_counter['current'] += 1
         update_term()
@@ -214,7 +214,7 @@ def ParseAbaqus(file):
             ret.count['comment'] += 1
             continue
         if regex['keyword'].search(line):
-            match = regex['keyword'].search(line) 
+            match = regex['keyword'].search(line)
             # This is a keyword line
             ret.count['keyword'] += 1
             kw = match.group(0).upper().strip(' ,\n*')
@@ -238,9 +238,9 @@ def ParseAbaqus(file):
 
         if regex['data'].search(line):
             count['keyword_line'] += 1
-        
+
         # from here on, process the current keyword
-        
+
         if kw == 'PART':
             if count['keyword_line'] == 0:
                 name = kwargs['name']
@@ -326,7 +326,7 @@ def ParseAbaqus(file):
                 else:
                     elset.part = current_part
                     ret.part[current_part].set['element'][elset.name] = elset
-                
+
             if count['keyword_line'] > 0:
                 parts = line.split(',')
                 try:
@@ -349,7 +349,7 @@ def ParseAbaqus(file):
                 else:
                     nset.part = current_part
                     ret.part[current_part].set['node'][nset.name] = nset
-                
+
             if count['keyword_line'] > 0:
                 parts = line.split(',')
                 try:
@@ -366,7 +366,7 @@ def ParseAbaqus(file):
     update_term(True)
     #import pdb; pdb.set_trace()
     return ret
-        
+
 inp = ParseAbaqus(args.input[0])
 #print(inp.count)
 
@@ -407,7 +407,7 @@ def WriteDynaFromAbaqus(abaqus_keyword, output_filename):
     inp = abaqus_keyword
     output = {}
     output['header'] = (
-        '$ LS-DYNA keyword input file\n' + 
+        '$ LS-DYNA keyword input file\n' +
         '$ Auto-translated from ' + args.input[0].name +
             ' by abaqus2dyna.py\n')
     output['timestamp'] = ('$ translated at: ' +
@@ -428,10 +428,10 @@ def WriteDynaFromAbaqus(abaqus_keyword, output_filename):
     set_comment_head = ('${:_>12s}{:_>12s}'+'_'*12 + '{:_<42s}$\n'
         ).format('type','id','name')
     output['sep'] = comment_line('',fill='*')
-    
+
     count = Counter()
     offset = Counter()
-    
+
     # need to write nodes, then elements, then sets
     for i in inp.instance:
         #print('Writing instance ' + i)
@@ -482,14 +482,14 @@ def WriteDynaFromAbaqus(abaqus_keyword, output_filename):
                     output['data'].write('\n')
                     current_type = element.type
                     current_has_orient = this_has_orient
-                
+
                 nodes = (np.array(element.node) + offset['node']).tolist()
                 for k in range(8 - len(nodes)):
                     nodes.append(0)
                 #import pdb; pdb.set_trace()
                 output['data'].write(element_fmt.format(id,count['part'],*nodes))
                 if current_has_orient:
-                    
+
                     a = np.empty(3)
                     d = np.empty(3)
                     # get element centroid
@@ -605,7 +605,7 @@ def WriteDynaFromAbaqus(abaqus_keyword, output_filename):
                     output['data'].write('\n')
                 count['nodeset'] += 1
                 output['stats']['nsid'].append([set_id,set_name])
-        
+
     update_term(True)
     k = open(output_filename, 'w')
     k.write(output['header'])
@@ -633,4 +633,4 @@ WriteDynaFromAbaqus(inp, args.input[0].name + '.k')
 
 
 
-    
+
