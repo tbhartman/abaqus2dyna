@@ -1,9 +1,8 @@
 #!/usr/bin/python3
-
-# abaqus2dyna.by
-# 
-# Copyright 2011 Tim Hartman <tbhartman@gmail.com>
-# 
+# abaqus2dyna.py
+#
+# Copyright 2018 Tim Hartman <tbhartman@gmail.com>
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -25,33 +24,6 @@ from collections import *
 import datetime
 import sys
 import tempfile
-
-# this def from Johannes WeiB at
-# http://stackoverflow.com/questions/566746/how-to-get-console-window-width-in-python
-def getTerminalSize():
-    def ioctl_GWINSZ(fd):
-        try:
-            import fcntl, termios, struct, os
-            cr = struct.unpack('hh', fcntl.ioctl(fd, termios.TIOCGWINSZ,
-        '1234'))
-        except:
-            return None
-        return cr
-    cr = ioctl_GWINSZ(0) or ioctl_GWINSZ(1) or ioctl_GWINSZ(2)
-    if not cr:
-        try:
-            fd = os.open(os.ctermid(), os.O_RDONLY)
-            cr = ioctl_GWINSZ(fd)
-            os.close(fd)
-        except:
-            pass
-    if not cr:
-        try:
-            cr = (env['LINES'], env['COLUMNS'])
-        except:
-            cr = (25, 80)
-    return int(cr[1]), int(cr[0])
-terminal_width,_ = getTerminalSize()
 
 # argument parsing definitions
 
