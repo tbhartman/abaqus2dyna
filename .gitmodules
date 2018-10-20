@@ -1,6 +1,0 @@
-[submodule "fea"]
-	path = fea
-	url = git@github.com:tbhartman/fea.git
-[submodule "console"]
-	path = console
-	url = git@github.com:tbhartman/console.git
