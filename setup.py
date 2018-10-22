@@ -20,7 +20,7 @@ setup(
             'abaqus2dyna = abaqus2dyna.__main__:main',
             ],
         },
-    install_requires = [],
+    install_requires = ['numpy'],
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
