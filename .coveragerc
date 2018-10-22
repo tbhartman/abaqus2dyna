@@ -1,0 +1,10 @@
+[run]
+source =
+    src/*.py
+omit =
+    src/abaqus2dyna/_version.py
+    */test/*
+branch = true
+data_file = coverage/.coverage
+[html]
+directory = coverage

@@ -21,6 +21,11 @@ setup(
             ],
         },
     install_requires = ['numpy'],
+    tests_require = [
+        'behave',
+        'pytest',
+        'coverage',
+        ],
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
