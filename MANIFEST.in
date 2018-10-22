@@ -1,0 +1,2 @@
+include versioneer.py
+include src/abaqus2dyna/_version.py

@@ -1,3 +1,4 @@
-abaqus2dyna
-*.swp
-*.tmpbak
+/abaqus2dyna
+*.pyc
+__pycache__
+*.egg-info

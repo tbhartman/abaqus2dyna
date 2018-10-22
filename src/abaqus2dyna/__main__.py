@@ -15,8 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version='0.0.1'
-
 import argparse
 import numpy as np
 import re
@@ -24,25 +22,6 @@ from collections import *
 import datetime
 import sys
 import tempfile
-
-# argument parsing definitions
-
-parser = argparse.ArgumentParser(prog='abaqus2dyna',
-                                 description='Translate Abaqus to LS-DYNA')
-parser.add_argument('input',
-                    metavar='INPUT',
-                    help='Abaqus keyword file (limit one)',
-                    nargs=1,
-                    type=argparse.FileType('r'))
-parser.add_argument('-o, --output',
-                    dest='output',
-                    metavar='OUTPUT',
-                    help='LS-DYNA keyword file output location',
-                    type=argparse.FileType('w'))
-parser.add_argument('-v, --version',
-                    action='version',
-                    version='%(prog)s ' + version)
-args = parser.parse_args()
 
 # class definitions
 
@@ -367,18 +346,6 @@ def ParseAbaqus(file):
     #import pdb; pdb.set_trace()
     return ret
 
-inp = ParseAbaqus(args.input[0])
-#print(inp.count)
-
-# get nodes + elements (these will take the longest)
-total_nodel = 0
-for i in inp.instance:
-    part = inp.part[inp.instance[i].part]
-    total_nodel += len(part.node)
-    total_nodel += len(part.element)
-
-# finally, output dyna keyword
-
 def WriteDynaFromAbaqus(abaqus_keyword, output_filename):
     #global total_nodel
     written_nodel = 0
@@ -629,8 +596,54 @@ def WriteDynaFromAbaqus(abaqus_keyword, output_filename):
     return
 
 
-WriteDynaFromAbaqus(inp, args.input[0].name + '.k')
+def main():
+    from . import _version
+    version = _version.get_versions()['version']
 
+    # argument parsing definitions
 
+    parser = argparse.ArgumentParser(prog='abaqus2dyna',
+                                     description='Translate Abaqus to LS-DYNA',
+                                     add_help=False)
+    parser.add_argument('--version',
+                        action='version',
+                        version='%(prog)s ' + version)
+    parser.parse_known_args()
 
+    parser.add_argument('-h', '--help',
+                        action='store_true')
+    parser.add_argument('input',
+                        metavar='INPUT',
+                        help='Abaqus keyword file (limit one)',
+                        nargs='?',
+                        type=argparse.FileType('r'))
+    parser.add_argument('-o', '--output',
+                        dest='output',
+                        metavar='OUTPUT',
+                        help='LS-DYNA keyword file output location',
+                        type=argparse.FileType('w'))
+    args = parser.parse_args()
+    if args.help:
+        parser.print_help()
+        return 0
 
+    if not len(args.input) == 1:
+        print('Required input')
+        parser.print_help()
+        return 1
+
+    inp = ParseAbaqus(args.input[0])
+    #print(inp.count)
+
+    # get nodes + elements (these will take the longest)
+    total_nodel = 0
+    for i in inp.instance:
+        part = inp.part[inp.instance[i].part]
+        total_nodel += len(part.node)
+        total_nodel += len(part.element)
+
+    # finally, output dyna keyword
+    WriteDynaFromAbaqus(inp, args.input[0].name + '.k')
+
+if __name__ == '__main__':
+    sys.exit(main())
