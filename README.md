@@ -12,6 +12,12 @@ License
 abaqusy2dyna is free software and licensed under the MIT License.
 
 
+Installation
+============
+
+`pip install abaqus2dyna`
+
+
 Instructions
 ============
 
