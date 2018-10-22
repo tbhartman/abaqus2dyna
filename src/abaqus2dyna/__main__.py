@@ -16,12 +16,13 @@
 # limitations under the License.
 
 import argparse
-import numpy as np
-import re
-from collections import *
+import collections
 import datetime
+import re
 import sys
 import tempfile
+
+import numpy as np
 
 # class definitions
 
@@ -129,7 +130,7 @@ class AbaqusInput():
     def __init__(self):
         self.part = {}
         self.instance = {}
-        self.count = Counter()
+        self.count = collections.Counter()
         self.set = {}
         self.set['node'] = {}
         self.set['element'] = {}
@@ -138,14 +139,14 @@ class AbaqusInput():
 
 def ParseAbaqus(file):
     ret = AbaqusInput()
-    count = Counter()
+    count = collections.Counter()
 
     regex = {}
     regex['comment'] = re.compile(r'^\*\*')
     regex['keyword'] = re.compile(r'^\*[a-zA-Z0-9 ]+[,\n]')
     regex['data'] = re.compile(r'^(?!\*)')
 
-    line_counter = Counter()
+    line_counter = collections.Counter()
     line_counter['total'] = len(file.readlines())
     file.seek(0)
 
@@ -168,18 +169,12 @@ def ParseAbaqus(file):
         if perc != old_perc or count == 1 or perc == 1:
             perc = count * 1.0 / total
             #import pdb; pdb.set_trace()
-            width = terminal_width
-            status_width = int(terminal_width * 0.40)
-            progress_width = width - status_width - 2 - 5
-            fmt = '{:' + str(status_width) + 's}[{:' + str(progress_width) + 's}] {:3.0f}%'
-            status = 'Parsing ' + file.name + ':'
-            bar_length = int(perc * progress_width)
-            to_write = fmt.format(status,'=' * bar_length, 100*perc)
+            fmt = 'Parsing ({:3.0f}% complete)'.format(100*perc)
             if complete:
-                to_write = 'Finished parsing ' + file.name + '.\n'
+                to_write = fmt + '...done!\n'
                 sys.stdout.write(to_write)
             else:
-                to_write = '\r' + to_write
+                to_write = fmt + '\r'
                 sys.stdout.write(to_write)
                 sys.stdout.flush()
 
@@ -346,7 +341,7 @@ def ParseAbaqus(file):
     #import pdb; pdb.set_trace()
     return ret
 
-def WriteDynaFromAbaqus(abaqus_keyword, output_filename):
+def WriteDynaFromAbaqus(total_nodel, inp_name, abaqus_keyword, output_filename):
     #global total_nodel
     written_nodel = 0
     def update_term(complete=False):
@@ -357,25 +352,19 @@ def WriteDynaFromAbaqus(abaqus_keyword, output_filename):
         perc = int(1000 * counted * 1.0 / total)
         old_perc = int(1000 * (counted-1)*1.0/total)
         if perc != old_perc or counted == 1:
-            perc = counted * 1.0 / total
-            #import pdb; pdb.set_trace()
-            width = terminal_width
-            status_width = int(terminal_width * 0.50)
-            progress_width = width - status_width - 2 - 7
-            fmt = '{:' + str(status_width) + 's}[{:' + str(progress_width) + 's}] {:5.1f}%'
-            status = 'Compiling data for ' + output_filename + ':'
-            bar_length = int(perc * progress_width)
-            to_write = fmt.format(status,'=' * bar_length, 100*perc)
-            if not complete:
-                to_write = '\r' + to_write
-                sys.stdout.write(to_write)
-                sys.stdout.flush()
+            status = 'Compiling data ({:5.1f}% complete)'.format(perc/10)
+            if complete:
+                to_write = status + '...done\n'
+            else:
+                to_write = status + '\r'
+            sys.stdout.write(to_write)
+            sys.stdout.flush()
 
     inp = abaqus_keyword
     output = {}
     output['header'] = (
         '$ LS-DYNA keyword input file\n' +
-        '$ Auto-translated from ' + args.input[0].name +
+        '$ Auto-translated from ' + inp_name +
             ' by abaqus2dyna.py\n')
     output['timestamp'] = ('$ translated at: ' +
         datetime.datetime.utcnow().strftime("%y-%m-%d %H:%M:%S UTC") + '\n')
@@ -396,8 +385,8 @@ def WriteDynaFromAbaqus(abaqus_keyword, output_filename):
         ).format('type','id','name')
     output['sep'] = comment_line('',fill='*')
 
-    count = Counter()
-    offset = Counter()
+    count = collections.Counter()
+    offset = collections.Counter()
 
     # need to write nodes, then elements, then sets
     for i in inp.instance:
@@ -627,12 +616,12 @@ def main():
         parser.print_help()
         return 0
 
-    if not len(args.input) == 1:
+    if not args.input:
         print('Required input')
         parser.print_help()
         return 1
 
-    inp = ParseAbaqus(args.input[0])
+    inp = ParseAbaqus(args.input)
     #print(inp.count)
 
     # get nodes + elements (these will take the longest)
@@ -643,7 +632,7 @@ def main():
         total_nodel += len(part.element)
 
     # finally, output dyna keyword
-    WriteDynaFromAbaqus(inp, args.input[0].name + '.k')
+    WriteDynaFromAbaqus(total_nodel, args.input.name, inp, args.input.name + '.k')
 
 if __name__ == '__main__':
     sys.exit(main())
