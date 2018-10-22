@@ -2,18 +2,14 @@ abaqus2dyna
 ============
 
 abaqus2dyna is a script to convert, in a limited fashion, Abaqus keyword input  
-files to LS-DYNA keyword input files.  It is a limited fashion because,
-seriously, we can't really translate everything; that's what engineers are for.
+files to LS-DYNA keyword input files.  It is currently very limited.
+(See example.inp)
 
 
 License
 =======
 
-abaqusy2dyna is free software and licensed under the Apache License 2.0.  You are
-welcome to change and redistribute it under certain conditions.  For more
-information, see the LICENSE file or visit:
-
-http://www.apache.org/licenses/LICENSE-2.0
+abaqusy2dyna is free software and licensed under the MIT License.
 
 
 Instructions
