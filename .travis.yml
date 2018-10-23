@@ -6,7 +6,9 @@ python:
 jobs:
   include:
     - stage: test
-      script: pytest --cov=abaqus2dyna
+      script:
+        - mkdir coverage
+        - pytest --cov=abaqus2dyna
 
 install:
   - pip install .[test]
