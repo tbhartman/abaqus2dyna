@@ -3,6 +3,16 @@ from setuptools import setup
 
 import versioneer
 
+test_deps = [
+    'behave',
+    'pytest',
+    'pytest-cov',
+    'coverage',
+    ],
+extras = {
+    'test': test_deps,
+}
+
 setup(
     name = "abaqus2dyna",
     version = versioneer.get_version(),
@@ -21,12 +31,8 @@ setup(
             ],
         },
     install_requires = ['numpy'],
-    tests_require = [
-        'behave',
-        'pytest',
-        'pytest-cov',
-        'coverage',
-        ],
+    tests_require = test_deps,
+    extras_require = extras,
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
