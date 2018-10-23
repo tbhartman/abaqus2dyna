@@ -24,6 +24,7 @@ setup(
     tests_require = [
         'behave',
         'pytest',
+        'pytest-cov',
         'coverage',
         ],
     classifiers=[

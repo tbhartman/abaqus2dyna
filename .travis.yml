@@ -5,10 +5,9 @@ python:
 
 jobs:
   include:
-    - python: 3.6
+    - stage: test
+      script: pytest --cov=abaqus2dyna
 
 install:
   - pip install .
-# command to run tests
-script:
-  - pytest --cov=abaqus2dyna
+
