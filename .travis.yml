@@ -9,5 +9,5 @@ jobs:
       script: pytest --cov=abaqus2dyna
 
 install:
-  - pip install .
+  - pip install .[test]
 
