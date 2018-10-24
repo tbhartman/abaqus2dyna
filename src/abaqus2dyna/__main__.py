@@ -585,41 +585,37 @@ def WriteDynaFromAbaqus(total_nodel, inp_name, abaqus_keyword, output_filename):
     return
 
 
-def main():
+def cmdline(argv):
+    """ command line processor
+
+    returns namespace via argparse, or throws SystemExit
+    """
     from . import _version
     version = _version.get_versions()['version']
 
     # argument parsing definitions
 
     parser = argparse.ArgumentParser(prog='abaqus2dyna',
-                                     description='Translate Abaqus to LS-DYNA',
-                                     add_help=False)
+                                     description='Translate Abaqus to LS-DYNA')
     parser.add_argument('--version',
                         action='version',
                         version='%(prog)s ' + version)
-    parser.parse_known_args()
-
-    parser.add_argument('-h', '--help',
-                        action='store_true')
     parser.add_argument('input',
                         metavar='INPUT',
-                        help='Abaqus keyword file (limit one)',
-                        nargs='?',
-                        type=argparse.FileType('r'))
+                        help='Abaqus keyword file')
     parser.add_argument('-o', '--output',
                         dest='output',
                         metavar='OUTPUT',
                         help='LS-DYNA keyword file output location',
                         type=argparse.FileType('w'))
-    args = parser.parse_args()
-    if args.help:
-        parser.print_help()
-        return 0
+    args = parser.parse_args(argv)
 
-    if not args.input:
-        print('Required input')
-        parser.print_help()
-        return 1
+    return args
+
+
+def main():
+    args = cmdline(sys.argv[1:])
+
 
     inp = ParseAbaqus(args.input)
     #print(inp.count)

@@ -1,4 +1,3 @@
-
 # This file helps to compute a version number in source trees obtained from
 # git-archive tarball (such as those provided by githubs download-from-tag
 # feature). Distribution tarballs (built by setup.py sdist) and build
@@ -11,6 +10,7 @@
 """Git implementation of _version.py."""
 
 import errno
+import functools
 import os
 import re
 import subprocess
@@ -474,6 +474,7 @@ def render(pieces, style):
             "date": pieces.get("date")}
 
 
+@functools.lru_cache()
 def get_versions():
     """Get version information or return default if unable to do so."""
     # I am in _version.py, which lives at ROOT/VERSIONFILE_SOURCE. If we have
