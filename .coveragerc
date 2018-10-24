@@ -1,10 +1,15 @@
 [run]
 source =
-    src/*.py
+    abaqus2dyna
 omit =
-    src/abaqus2dyna/_version.py
+    */abaqus2dyna/_version.py
     */test/*
-branch = true
+branch = True
 data_file = coverage/.coverage
+[paths]
+source = 
+    src/abaqus2dyna
+    *\site-packages\abaqus2dyna
+    */site-packages/abaqus2dyna
 [html]
-directory = coverage
+directory = coverage/html

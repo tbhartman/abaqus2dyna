@@ -1,0 +1,2 @@
+[behave]
+paths = src/abaqus2dyna/test/features

@@ -8,6 +8,7 @@ before_script:
   - pip install python-coveralls 'coverage>=4.4'
   - mkdir coverage
 script:
-  - pytest --cov=abaqus2dyna
+  - make coverage
+  - behave src/abaqus2dyna/test/features -k --tags=-unit
 after_success:
   - coveralls --data_file coverage/.coverage
