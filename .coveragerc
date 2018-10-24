@@ -10,5 +10,6 @@ data_file = coverage/.coverage
 source = 
     src/abaqus2dyna
     *\site-packages\abaqus2dyna
+    */site-packages/abaqus2dyna
 [html]
 directory = coverage/html
