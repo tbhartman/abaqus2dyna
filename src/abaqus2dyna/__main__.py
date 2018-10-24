@@ -8,7 +8,46 @@ import tempfile
 
 import numpy as np
 
-# class definitions
+class Model:
+    def __init__(self):
+        self.assembly = None
+
+    @staticmethod
+    def parse(cls, file_or_name):
+        NotImplemented()
+    def write(cls, file_or_name):
+        NotImplemented()
+
+class Assembly:
+    def __init__(self):
+        self.name = None
+        self.instances = []
+        self.sets = {}
+
+class Instance:
+    def __init__(self):
+        self.name = None
+        self.part = None
+        self.translation = None
+        self.rotation = None
+
+class Part:
+    def __init__(self):
+        self.name = None
+        self.nodes = None
+        self.elements = None
+        self.sets = None
+
+class AbaqusInput:
+    def __init__(self):
+        self.assembly = None
+        self.header = None
+
+    @staticmethod
+    def parse(cls, file_or_name):
+        ret = cls()
+        return ret
+
 
 class Orientation():
     system = None
@@ -325,12 +364,12 @@ def ParseAbaqus(file):
     #import pdb; pdb.set_trace()
     return ret
 
-def WriteDynaFromAbaqus(total_nodel, inp_name, abaqus_keyword, output_filename):
+def WriteDynaFromAbaqus(total_nodel, inp_name, abaqus_keyword, ostream):
     #global total_nodel
     written_nodel = 0
     def update_term(complete=False):
         #global total_nodel
-        #global output_filename
+        #global ostream
         total = total_nodel
         counted = count['node'] + count['element']
         perc = int(1000 * counted * 1.0 / total)
@@ -547,7 +586,7 @@ def WriteDynaFromAbaqus(total_nodel, inp_name, abaqus_keyword, output_filename):
                 output['stats']['nsid'].append([set_id,set_name])
 
     update_term(True)
-    k = open(output_filename, 'w')
+    k = ostream
     k.write(output['header'])
     k.write(output['timestamp'])
     k.write(output['sep'])
@@ -564,15 +603,16 @@ def WriteDynaFromAbaqus(total_nodel, inp_name, abaqus_keyword, output_filename):
     k.write(output['sep'])
     k.write('*END\n')
     k.write(comment_line('End of translated output.', fill='-', newline=False))
-    k.close()
-    print('File ' + output_filename + ' written.')
     return
 
 
-def cmdline(argv):
+def cmdline(argv = None):
     """ command line processor
 
     returns namespace via argparse, or throws SystemExit
+
+    if argv is none, get from sys.argv (via argparse)
+
     """
     from . import _version
     version = _version.get_versions()['version']
@@ -590,18 +630,15 @@ def cmdline(argv):
     parser.add_argument('-o', '--output',
                         dest='output',
                         metavar='OUTPUT',
-                        help='LS-DYNA keyword file output location',
-                        type=argparse.FileType('w'))
+                        help='LS-DYNA keyword file output location')
     args = parser.parse_args(argv)
 
     return args
 
 
-def main():
-    args = cmdline(sys.argv[1:])
+def convert(fin, fout):
 
-
-    inp = ParseAbaqus(args.input)
+    inp = ParseAbaqus(fin)
     #print(inp.count)
 
     # get nodes + elements (these will take the longest)
@@ -612,7 +649,21 @@ def main():
         total_nodel += len(part.element)
 
     # finally, output dyna keyword
-    WriteDynaFromAbaqus(total_nodel, args.input.name, inp, args.input.name + '.k')
+    WriteDynaFromAbaqus(total_nodel, fin.name, inp, fout)
+
+def main():
+    args = cmdline()
+    with open(args.input) as fin:
+        if args.output:
+            fout = open(args.output, 'w')
+        else:
+            fout = sys.stdout
+        try:
+            return convert(fin, fout)
+        finally:
+            if args.output:
+                fout.close()
 
 if __name__ == '__main__':
     sys.exit(main())
+
